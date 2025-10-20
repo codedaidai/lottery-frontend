@@ -67,26 +67,12 @@ function initFeishuSDK() {
 
 // 获取API基础URL（根据实际部署调整）
 function getApiBaseUrl() {
-    // 方式1: 使用环境变量或配置文件
-    // 在飞书应用配置中，你需要将后端API地址配置为环境变量或写死
-    
-    // 方式2: 使用相对路径（如果前后端部署在同一域名下）
-    // API_BASE = '/api';
-    
-    // 方式3: 使用固定的后端地址（开发环境）
-    // API_BASE = 'http://your-server-ip:5000/api';
-    
-    // 方式4: 从当前URL提取（如果使用反向代理）
-    const origin = window.location.origin;
-    if (origin && origin !== 'null' && !origin.startsWith('file://')) {
-        API_BASE = `${origin.replace(/\/$/, '')}/api`;
-    } else {
-        API_BASE = resolveApiBaseDefault();
-    }
+    // Cloudflare Tunnel 后端地址
+    API_BASE = 'https://bind-injection-travesti-beatles.trycloudflare.com/api';
 
     // 如果是本地开发，默认指向后端本机端口
     if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-        API_BASE = `http://${window.location.hostname}:5000/api`;
+        API_BASE = `http://${window.location.hostname}:5001/api`;
     }
     
     console.log('API_BASE:', API_BASE);
