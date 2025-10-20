@@ -8,11 +8,8 @@ let messageModal = null;
 let isFeishuReady = false;
 
 function resolveApiBaseDefault() {
-    const origin = window.location.origin;
-    if (origin && origin !== 'null' && !origin.startsWith('file://')) {
-        return `${origin.replace(/\/$/, '')}/api`;
-    }
-    return 'http://127.0.0.1:5000/api';
+    // 始终返回Cloudflare Tunnel地址
+    return 'https://bind-injection-travesti-beatles.trycloudflare.com/api';
 }
 
 // 页面加载完成后初始化
