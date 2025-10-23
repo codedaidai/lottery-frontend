@@ -156,37 +156,182 @@ function renderPrizesTable(prizes) {
     tbody.innerHTML = '';
 
     prizes.forEach((prize, index) => {
+        const isBox = prize.type === 'box';
         const row = tbody.insertRow();
-        row.innerHTML = `
-            <td>
-                <input type="text" class="form-control form-control-sm"
-                       value="${prize.name}"
-                       onchange="updatePrize(${index}, 'name', this.value)">
-            </td>
-            <td>
-                <input type="number" class="form-control form-control-sm"
-                       value="${(prize.prob * 100).toFixed(4)}"
-                       step="0.0001" min="0" max="100"
-                       onchange="updatePrize(${index}, 'prob', parseFloat(this.value) / 100)">
-            </td>
-            <td>
-                <input type="number" class="form-control form-control-sm"
-                       value="${prize.value}"
-                       step="0.01" min="0"
-                       onchange="updatePrize(${index}, 'value', parseFloat(this.value))">
-            </td>
-            <td class="text-muted">
-                ${(prize.prob * prize.value).toFixed(2)}
-            </td>
-            <td>
-                <button class="btn btn-sm btn-danger btn-delete" onclick="deletePrize(${index})">
-                    <i class="bi bi-trash"></i>
-                </button>
-            </td>
-        `;
+
+        if (isBox) {
+            // 宝箱类型：计算期望价值
+            const boxValue = prize.sub_prizes.reduce((sum, sp) => sum + sp.prob * sp.value, 0);
+            row.innerHTML = `
+                <td>
+                    <button class="btn btn-sm btn-link p-0 me-2" onclick="toggleBox(${index})" id="toggleBtn${index}">
+                        <i class="bi bi-chevron-right"></i>
+                    </button>
+                    <input type="text" class="form-control form-control-sm d-inline-block" style="width: 70%"
+                           value="${prize.name}"
+                           onchange="updatePrize(${index}, 'name', this.value)">
+                    <span class="badge bg-primary ms-1">宝箱</span>
+                </td>
+                <td>
+                    <input type="number" class="form-control form-control-sm"
+                           value="${(prize.prob * 100).toFixed(4)}"
+                           step="0.0001" min="0" max="100"
+                           onchange="updatePrize(${index}, 'prob', parseFloat(this.value) / 100)">
+                </td>
+                <td class="text-muted">
+                    ${boxValue.toFixed(2)} (期望)
+                </td>
+                <td class="text-muted">
+                    ${(prize.prob * boxValue).toFixed(2)}
+                </td>
+                <td>
+                    <button class="btn btn-sm btn-danger btn-delete" onclick="deletePrize(${index})">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </td>
+            `;
+        } else {
+            // 普通奖品
+            row.innerHTML = `
+                <td>
+                    <input type="text" class="form-control form-control-sm"
+                           value="${prize.name}"
+                           onchange="updatePrize(${index}, 'name', this.value)">
+                </td>
+                <td>
+                    <input type="number" class="form-control form-control-sm"
+                           value="${(prize.prob * 100).toFixed(4)}"
+                           step="0.0001" min="0" max="100"
+                           onchange="updatePrize(${index}, 'prob', parseFloat(this.value) / 100)">
+                </td>
+                <td>
+                    <input type="number" class="form-control form-control-sm"
+                           value="${prize.value}"
+                           step="0.01" min="0"
+                           onchange="updatePrize(${index}, 'value', parseFloat(this.value))">
+                </td>
+                <td class="text-muted">
+                    ${(prize.prob * prize.value).toFixed(2)}
+                </td>
+                <td>
+                    <button class="btn btn-sm btn-danger btn-delete" onclick="deletePrize(${index})">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </td>
+            `;
+        }
+
+        // 如果是宝箱，添加子商品行（初始隐藏）
+        if (isBox) {
+            const subRow = tbody.insertRow();
+            subRow.id = `subPrizes${index}`;
+            subRow.style.display = 'none';
+            subRow.innerHTML = `
+                <td colspan="5" class="bg-light">
+                    <div class="ms-4 p-2">
+                        <h6>宝箱内商品 <button class="btn btn-sm btn-success" onclick="addSubPrize(${index})"><i class="bi bi-plus"></i> 添加商品</button></h6>
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>商品名称</th>
+                                    <th>概率 (%)</th>
+                                    <th>价值</th>
+                                    <th>期望成本</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="subPrizesTable${index}">
+                                ${renderSubPrizes(prize.sub_prizes, index)}
+                            </tbody>
+                        </table>
+                    </div>
+                </td>
+            `;
+        }
     });
 
     updateTotals(prizes);
+}
+
+// 渲染宝箱子商品
+function renderSubPrizes(subPrizes, parentIndex) {
+    return subPrizes.map((sp, spIndex) => `
+        <tr>
+            <td>
+                <input type="text" class="form-control form-control-sm"
+                       value="${sp.name}"
+                       onchange="updateSubPrize(${parentIndex}, ${spIndex}, 'name', this.value)">
+            </td>
+            <td>
+                <input type="number" class="form-control form-control-sm"
+                       value="${(sp.prob * 100).toFixed(4)}"
+                       step="0.0001" min="0" max="100"
+                       onchange="updateSubPrize(${parentIndex}, ${spIndex}, 'prob', parseFloat(this.value) / 100)">
+            </td>
+            <td>
+                <input type="number" class="form-control form-control-sm"
+                       value="${sp.value}"
+                       step="0.01" min="0"
+                       onchange="updateSubPrize(${parentIndex}, ${spIndex}, 'value', parseFloat(this.value))">
+            </td>
+            <td class="text-muted">
+                ${(sp.prob * sp.value).toFixed(2)}
+            </td>
+            <td>
+                <button class="btn btn-sm btn-danger" onclick="deleteSubPrize(${parentIndex}, ${spIndex})">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+// 切换宝箱展开/折叠
+function toggleBox(index) {
+    const subRow = document.getElementById(`subPrizes${index}`);
+    const toggleBtn = document.getElementById(`toggleBtn${index}`);
+    if (subRow.style.display === 'none') {
+        subRow.style.display = '';
+        toggleBtn.innerHTML = '<i class="bi bi-chevron-down"></i>';
+    } else {
+        subRow.style.display = 'none';
+        toggleBtn.innerHTML = '<i class="bi bi-chevron-right"></i>';
+    }
+}
+
+// 更新子商品
+function updateSubPrize(parentIndex, subIndex, field, value) {
+    if (!currentConfig) return;
+    currentConfig.prizes[parentIndex].sub_prizes[subIndex][field] = value;
+    renderPrizesTable(currentConfig.prizes);
+    logMessage(`已修改宝箱子商品 ${field}`, 'info');
+}
+
+// 添加子商品
+function addSubPrize(parentIndex) {
+    if (!currentConfig) return;
+    const newSubPrize = {
+        name: '新商品',
+        prob: 0.1,
+        value: 10
+    };
+    currentConfig.prizes[parentIndex].sub_prizes.push(newSubPrize);
+    renderPrizesTable(currentConfig.prizes);
+    logMessage('已添加宝箱子商品', 'info');
+    showFeishuToast('已添加宝箱子商品');
+}
+
+// 删除子商品
+function deleteSubPrize(parentIndex, subIndex) {
+    if (!currentConfig) return;
+    if (currentConfig.prizes[parentIndex].sub_prizes.length <= 1) {
+        showError('宝箱至少需要保留一个商品');
+        return;
+    }
+    currentConfig.prizes[parentIndex].sub_prizes.splice(subIndex, 1);
+    renderPrizesTable(currentConfig.prizes);
+    logMessage('已删除宝箱子商品', 'warning');
+    showFeishuToast('已删除宝箱子商品');
 }
 
 // 更新奖品数据
@@ -213,10 +358,46 @@ function deletePrize(index) {
     showFeishuToast('已删除奖品');
 }
 
-// 添加奖品
+// 添加奖品 (弹出选择框)
 function addPrize() {
     if (!currentConfig) return;
 
+    // 使用 Bootstrap Modal 选择奖品类型
+    const modalHtml = `
+        <div class="modal fade" id="addPrizeModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">选择奖品类型</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-primary" onclick="addNormalPrize()">
+                                <i class="bi bi-gift"></i> 添加普通奖品
+                            </button>
+                            <button class="btn btn-info" onclick="addBoxPrize()">
+                                <i class="bi bi-box"></i> 添加宝箱
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // 移除旧的 modal（如果存在）
+    const oldModal = document.getElementById('addPrizeModal');
+    if (oldModal) oldModal.remove();
+
+    // 添加新 modal
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    const modal = new bootstrap.Modal(document.getElementById('addPrizeModal'));
+    modal.show();
+}
+
+// 添加普通奖品
+function addNormalPrize() {
     const newPrize = {
         name: `新奖品 ${currentConfig.prizes.length + 1}`,
         prob: 0.01,
@@ -227,12 +408,46 @@ function addPrize() {
     renderPrizesTable(currentConfig.prizes);
     logMessage('已添加新奖品', 'info');
     showFeishuToast('已添加新奖品');
+
+    // 关闭 modal
+    bootstrap.Modal.getInstance(document.getElementById('addPrizeModal')).hide();
+}
+
+// 添加宝箱
+function addBoxPrize() {
+    const newBox = {
+        name: `新宝箱 ${currentConfig.prizes.length + 1}`,
+        type: 'box',
+        prob: 0.01,
+        sub_prizes: [
+            { name: '奖品A', prob: 0.3, value: 100 },
+            { name: '奖品B', prob: 0.5, value: 50 },
+            { name: '谢谢参与', prob: 0.2, value: 0 }
+        ]
+    };
+
+    currentConfig.prizes.push(newBox);
+    renderPrizesTable(currentConfig.prizes);
+    logMessage('已添加新宝箱', 'info');
+    showFeishuToast('已添加新宝箱');
+
+    // 关闭 modal
+    bootstrap.Modal.getInstance(document.getElementById('addPrizeModal')).hide();
 }
 
 // 更新总计行
 function updateTotals(prizes) {
     const totalProb = prizes.reduce((sum, p) => sum + p.prob, 0);
-    const totalExpected = prizes.reduce((sum, p) => sum + (p.prob * p.value), 0);
+
+    // 计算总期望赔付（宝箱需要计算期望价值）
+    const totalExpected = prizes.reduce((sum, p) => {
+        if (p.type === 'box') {
+            const boxValue = p.sub_prizes.reduce((s, sp) => s + sp.prob * sp.value, 0);
+            return sum + (p.prob * boxValue);
+        } else {
+            return sum + (p.prob * p.value);
+        }
+    }, 0);
 
     const totalProbEl = document.getElementById('totalProb');
     totalProbEl.textContent = (totalProb * 100).toFixed(4) + '%';
