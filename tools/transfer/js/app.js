@@ -160,6 +160,7 @@ const app = createApp({
             const dates = this.dashboardData.trend.map(item => item.date);
             const counts = this.dashboardData.trend.map(item => item.count);
             const items = this.dashboardData.trend.map(item => item.items);
+            const values = this.dashboardData.trend.map(item => item.value);
 
             const option = {
                 title: {
@@ -170,7 +171,7 @@ const app = createApp({
                     trigger: 'axis'
                 },
                 legend: {
-                    data: ['转赠次数', '转赠物品数'],
+                    data: ['转赠次数', '转赠物品数', '转赠金额（¥）'],
                     bottom: 0
                 },
                 grid: {
@@ -184,9 +185,18 @@ const app = createApp({
                     boundaryGap: false,
                     data: dates
                 },
-                yAxis: {
-                    type: 'value'
-                },
+                yAxis: [
+                    {
+                        type: 'value',
+                        name: '次数/物品数',
+                        position: 'left'
+                    },
+                    {
+                        type: 'value',
+                        name: '金额（¥）',
+                        position: 'right'
+                    }
+                ],
                 series: [
                     {
                         name: '转赠次数',
@@ -201,6 +211,14 @@ const app = createApp({
                         data: items,
                         smooth: true,
                         itemStyle: { color: '#67C23A' }
+                    },
+                    {
+                        name: '转赠金额（¥）',
+                        type: 'line',
+                        data: values,
+                        smooth: true,
+                        yAxisIndex: 1,
+                        itemStyle: { color: '#F56C6C' }
                     }
                 ]
             };
