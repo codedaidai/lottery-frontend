@@ -13,9 +13,7 @@ const CONFIG = {
         }
 
         // 生产环境 - 通过Cloudflare Tunnel访问
-        // TODO: 部署后需要配置 Cloudflare Tunnel 地址
-        // 格式：return 'https://your-tunnel-url.trycloudflare.com/admin/transfer';
-        return 'https://YOUR_CLOUDFLARE_TUNNEL_URL/admin/transfer';
+        return 'https://rolled-article-beautifully-campbell.trycloudflare.com/admin/transfer';
     })(),
 
     // 分页配置
