@@ -109,14 +109,166 @@ body {
     margin-top: 10px;
 }
 
-/* 响应式 */
+/* 响应式 - 参考Bootstrap方法优化 */
+/* 平板和小屏幕 (< 768px) */
 @media (max-width: 768px) {
+    /* 隐藏侧边栏 */
     .el-aside {
-        display: none;
+        display: none !important;
+    }
+
+    /* 头部优化 */
+    .header-content h3 {
+        font-size: 16px;
+    }
+
+    /* 主内容区padding */
+    .el-main {
+        padding: 10px;
+    }
+
+    /* 统计卡片 */
+    .stat-value {
+        font-size: 24px;
+    }
+
+    .stat-label {
+        font-size: 12px;
+    }
+
+    /* 表格优化 */
+    .el-table {
+        font-size: 12px;
+    }
+
+    .el-table th,
+    .el-table td {
+        padding: 8px 0 !important;
+    }
+
+    /* 表单优化 - inline表单变垂直 */
+    .el-form--inline .el-form-item {
+        display: block;
+        margin-right: 0;
+    }
+
+    /* 图表高度调整 */
+    #trendChart,
+    #topUsersChart,
+    #userTrendChart,
+    #topReceiversChart {
+        min-height: 250px !important;
+    }
+
+    #userNetworkChart {
+        min-height: 350px !important;
+    }
+
+    /* 分页居中 */
+    .el-pagination {
+        justify-content: center;
+    }
+
+    /* 弹窗宽度 */
+    .el-dialog {
+        width: 95% !important;
+        margin: 5vh auto !important;
+    }
+
+    /* 按钮组优化 */
+    .el-button {
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+
+    /* 描述列表优化 */
+    .el-descriptions {
+        font-size: 13px;
+    }
+
+    /* 消息提示优化 */
+    .el-message {
+        min-width: 280px;
+    }
+}
+
+/* 手机竖屏 (< 576px) */
+@media (max-width: 576px) {
+    /* 头部 */
+    .header-content {
+        flex-direction: column;
+        padding: 10px;
+        gap: 10px;
+    }
+
+    .header-content h3 {
+        font-size: 14px;
+    }
+
+    /* 统计卡片更紧凑 */
+    .stat-card {
+        padding: 15px 0;
     }
 
     .stat-value {
-        font-size: 24px;
+        font-size: 20px;
+    }
+
+    /* 表格更紧凑 */
+    .el-table {
+        font-size: 11px;
+    }
+
+    .el-table th,
+    .el-table td {
+        padding: 6px 4px !important;
+    }
+
+    /* 表单元素全宽 */
+    .el-input,
+    .el-select,
+    .el-date-editor {
+        width: 100% !important;
+    }
+
+    /* 按钮全宽 */
+    .el-form-item .el-button {
+        width: 100%;
+        margin-bottom: 8px;
+    }
+
+    /* 图表进一步缩小 */
+    #trendChart,
+    #topUsersChart,
+    #userTrendChart,
+    #topReceiversChart {
+        min-height: 200px !important;
+    }
+
+    #userNetworkChart {
+        min-height: 300px !important;
+    }
+
+    /* 弹窗全屏 */
+    .el-dialog {
+        width: 100% !important;
+        margin: 0 !important;
+        height: 100vh;
+        max-height: 100vh;
+    }
+
+    .el-dialog__body {
+        padding: 10px;
+    }
+
+    /* 分页简化 */
+    .el-pagination {
+        font-size: 12px;
+    }
+
+    /* 空状态padding */
+    .el-empty {
+        padding: 30px 0;
     }
 }
 
