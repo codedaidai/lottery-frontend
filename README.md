@@ -29,7 +29,7 @@ lottery-frontend/
 
 ## 已有工具
 
-### 1. 抽奖系统
+### 1. 无限赏模拟
 - **路径**：`tools/lottery-feishu/`
 - **功能**：
   - 配置抽奖概率和奖品价值
@@ -76,7 +76,7 @@ git push origin main
 
 ## 配置 Cloudflare Tunnel
 
-### 抽奖系统后端
+### 无限赏模拟后端
 ```bash
 # 已配置，地址在 tools/lottery-feishu/script.js
 # API_BASE = 'https://bind-injection-travesti-beatles.trycloudflare.com/api';
