@@ -1,0 +1,266 @@
+/* 全局样式 */
+body {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    font-family: 'Microsoft YaHei', 'Segoe UI', sans-serif;
+}
+
+.container-fluid {
+    padding-bottom: 30px;
+}
+
+/* 卡片阴影 */
+.card {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border: none;
+    border-radius: 8px;
+}
+
+.card-header {
+    border-radius: 8px 8px 0 0 !important;
+    border: none;
+}
+
+/* 统计卡片 */
+.stat-card {
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    transition: transform 0.2s;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: #6c757d;
+    margin-bottom: 8px;
+}
+
+.stat-value {
+    font-size: 1.8rem;
+    font-weight: bold;
+}
+
+/* 表格样式 */
+.table-responsive {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.table input {
+    border: 1px solid #dee2e6;
+    padding: 4px 8px;
+    width: 100%;
+    border-radius: 4px;
+}
+
+.table input:focus {
+    outline: none;
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+.table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+/* 删除按钮 */
+.btn-delete {
+    padding: 2px 8px;
+    font-size: 0.9rem;
+}
+
+/* 按钮样式增强 */
+.btn {
+    border-radius: 6px;
+    transition: all 0.2s;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+/* 日志区域 */
+.log-area {
+    height: 300px;
+    overflow-y: auto;
+    background: #1e1e1e;
+    color: #d4d4d4;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 0.85rem;
+    padding: 10px;
+}
+
+.log-entry {
+    padding: 4px 0;
+    border-bottom: 1px solid #333;
+}
+
+.log-entry:last-child {
+    border-bottom: none;
+}
+
+.log-time {
+    color: #858585;
+    margin-right: 8px;
+}
+
+.log-success {
+    color: #4ec9b0;
+}
+
+.log-error {
+    color: #f48771;
+}
+
+.log-info {
+    color: #9cdcfe;
+}
+
+.log-warning {
+    color: #dcdcaa;
+}
+
+/* 模拟结果样式 */
+#simulationResults {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.simulation-stat {
+    padding: 8px;
+    margin-bottom: 8px;
+    background: #f8f9fa;
+    border-radius: 4px;
+    border-left: 4px solid #0d6efd;
+}
+
+.simulation-stat strong {
+    display: inline-block;
+    min-width: 120px;
+}
+
+/* 标题动画 */
+header h1 {
+    animation: fadeInDown 0.6s ease-in-out;
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 加载动画 */
+.loading-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* 概率验证指示器 */
+.prob-valid {
+    color: #198754;
+    font-weight: bold;
+}
+
+.prob-invalid {
+    color: #dc3545;
+    font-weight: bold;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .stat-value {
+        font-size: 1.4rem;
+    }
+
+    .table-responsive {
+        font-size: 0.9rem;
+    }
+
+    .log-area {
+        height: 200px;
+    }
+}
+
+/* 滚动条美化 */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* 输入框禁用箭头 (Chrome, Safari, Edge) */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    opacity: 1;
+}
+
+/* 模态框样式 */
+.modal-content {
+    border-radius: 8px;
+}
+
+.modal-header {
+    border-bottom: 2px solid #dee2e6;
+}
+
+/* 图表容器 */
+.chart-container {
+    position: relative;
+    height: 300px;
+    margin-top: 10px;
+}
+
+/* 提示文本 */
+.help-text {
+    font-size: 0.85rem;
+    color: #6c757d;
+    font-style: italic;
+}
+
+/* 高亮效果 */
+.highlight {
+    animation: highlightFade 1.5s ease-in-out;
+}
+
+@keyframes highlightFade {
+    0% { background-color: #fff3cd; }
+    100% { background-color: transparent; }
+}

@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>转赠分析系统</title>
+
+    <!-- CDN引入 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
+    <link rel="stylesheet" href="css/style.css">
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/element-plus"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+</head>
+<body>
+    <div id="app">
+        <el-container style="height: 100vh;">
+            <!-- 侧边栏 -->
+            <el-aside width="200px" style="background-color: #304156;">
+                <div class="logo">
+                    <h2>转赠分析</h2>
+                </div>
+                <el-menu
+                    :default-active="currentMenu"
+                    class="sidebar-menu"
+                    background-color="#304156"
+                    text-color="#bfcbd9"
+                    active-text-color="#409EFF"
+                    @select="handleMenuSelect">
+                    <el-menu-item index="dashboard">
+                        <span>📊 数据概览</span>
+                    </el-menu-item>
+                    <el-menu-item index="records">
+                        <span>📋 转赠记录</span>
+                    </el-menu-item>
+                    <el-menu-item index="user">
+                        <span>👤 用户分析</span>
+                    </el-menu-item>
+                    <el-menu-item index="network">
+                        <span>🏆 转赠排行</span>
+                    </el-menu-item>
+                </el-menu>
+            </el-aside>
+
+            <!-- 主内容区 -->
+            <el-container>
+                <!-- 顶部栏 -->
+                <el-header style="background-color: #fff; border-bottom: 1px solid #e6e6e6;">
+                    <div class="header-content">
+                        <h3>{{ menuTitle }}</h3>
+                        <div>
+                            <el-tag type="success">运行中</el-tag>
+                            <span style="margin-left: 10px; color: #909399;">API: {{ apiBase }}</span>
+                        </div>
+                    </div>
+                </el-header>
+
+                <!-- 主内容 -->
+                <el-main>
+                    <!-- 数据概览页面 -->
+                    <div v-if="currentMenu === 'dashboard'" class="dashboard">
+                        <el-row :gutter="20" style="margin-bottom: 20px;">
+                            <el-col :span="6">
+                                <el-card shadow="hover" class="stat-card">
+                                    <div class="stat-value">{{ dashboardData.stats.total_count }}</div>
+                                    <div class="stat-label">总转赠次数</div>
+                                </el-card>
+                            </el-col>
+                            <el-col :span="6">
+                                <el-card shadow="hover" class="stat-card">
+                                    <div class="stat-value">{{ dashboardData.stats.total_items }}</div>
+                                    <div class="stat-label">总转赠物品</div>
+                                </el-card>
+                            </el-col>
+                            <el-col :span="6">
+                                <el-card shadow="hover" class="stat-card">
+                                    <div class="stat-value">{{ dashboardData.stats.total_users }}</div>
+                                    <div class="stat-label">参与用户数</div>
+                                </el-card>
+                            </el-col>
+                            <el-col :span="6">
+                                <el-card shadow="hover" class="stat-card">
+                                    <div class="stat-value">¥{{ dashboardData.stats.total_value }}</div>
+                                    <div class="stat-label">总转赠价值</div>
+                                </el-card>
+                            </el-col>
+                        </el-row>
+
+                        <!-- 最新转赠动态 -->
+                        <el-card shadow="hover" style="margin-bottom: 20px;">
+                            <template #header>
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="font-weight: bold;">⚡ 最新转赠动态</span>
+                                    <el-tag type="info" size="small">最近24小时</el-tag>
+                                </div>
+                            </template>
+                            <el-timeline v-if="recentTransfers.length">
+                                <el-timeline-item
+                                    v-for="item in recentTransfers"
+                                    :key="item.id"
+                                    :timestamp="item.addtime_format"
+                                    placement="top"
+                                    :color="item.is_first_transfer ? '#f56c6c' : '#409eff'">
+                                    <el-card>
+                                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                                            <div>
+                                                <strong>{{ item.user_id }}:{{ item.sender_name }}</strong>
+                                                <span style="color: #909399;">→</span>
+                                                <strong>{{ item.give_user_id }}:{{ item.receiver_name }}</strong>
+                                                <span style="color: #606266; margin-left: 10px;">转赠了 {{ item.count }} 件物品</span>
+                                            </div>
+                                            <div>
+                                                <el-tag v-if="item.is_first_transfer" type="danger" size="small" effect="dark">
+                                                    🎉 首次转赠
+                                                </el-tag>
+                                                <el-tag type="warning" size="small" style="margin-left: 5px;">
+                                                    ¥{{ item.total_value }}
+                                                </el-tag>
+                                            </div>
+                                        </div>
+                                    </el-card>
+                                </el-timeline-item>
+                            </el-timeline>
+                            <el-empty v-else description="暂无最新动态" :image-size="80"></el-empty>
+                        </el-card>
+
+                        <el-row :gutter="20">
+                            <el-col :span="12">
+                                <el-card shadow="hover">
+                                    <div id="trendChart" style="height: 350px;"></div>
+                                </el-card>
+                            </el-col>
+                            <el-col :span="12">
+                                <el-card shadow="hover">
+                                    <div id="topUsersChart" style="height: 350px;"></div>
+                                </el-card>
+                            </el-col>
+                        </el-row>
+                    </div>
+
+                    <!-- 转赠记录页面 -->
+                    <div v-if="currentMenu === 'records'" class="records">
+                        <el-card shadow="never" style="margin-bottom: 20px;">
+                            <el-form :inline="true" :model="recordsFilter">
+                                <el-form-item label="用户ID">
+                                    <el-input v-model="recordsFilter.user_id" placeholder="输入用户ID" clearable style="width: 150px;"></el-input>
+                                </el-form-item>
+                                <el-form-item label="转赠方向">
+                                    <el-select v-model="recordsFilter.direction" placeholder="选择方向" style="width: 120px;">
+                                        <el-option label="全部" value=""></el-option>
+                                        <el-option label="赠送" value="send"></el-option>
+                                        <el-option label="接收" value="receive"></el-option>
+                                    </el-select>
+                                </el-form-item>
+                                <el-form-item label="时间范围">
+                                    <el-date-picker
+                                        v-model="recordsFilter.dateRange"
+                                        type="daterange"
+                                        range-separator="至"
+                                        start-placeholder="开始日期"
+                                        end-placeholder="结束日期"
+                                        value-format="YYYY-MM-DD">
+                                    </el-date-picker>
+                                </el-form-item>
+                                <el-form-item label="数量范围">
+                                    <el-input v-model="recordsFilter.min_count" placeholder="最小" style="width: 100px;"></el-input>
+                                    <span style="margin: 0 5px;">-</span>
+                                    <el-input v-model="recordsFilter.max_count" placeholder="最大" style="width: 100px;"></el-input>
+                                </el-form-item>
+                                <el-form-item>
+                                    <el-button type="primary" @click="loadRecords">搜索</el-button>
+                                    <el-button @click="resetRecordsFilter">重置</el-button>
+                                    <el-button type="success" @click="exportExcel">导出Excel</el-button>
+                                </el-form-item>
+                            </el-form>
+                        </el-card>
+
+                        <el-card shadow="never">
+                            <el-table
+                                :data="recordsList"
+                                v-loading="recordsLoading"
+                                stripe
+                                style="width: 100%;">
+                                <el-table-column prop="id" label="ID" width="80"></el-table-column>
+                                <el-table-column label="赠送人" width="180">
+                                    <template #default="scope">
+                                        <div>
+                                            {{ scope.row.user_id }}:{{ scope.row.sender_name }}
+                                        </div>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column label="接收人" width="180">
+                                    <template #default="scope">
+                                        <div>
+                                            {{ scope.row.give_user_id }}:{{ scope.row.receiver_name }}
+                                        </div>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column prop="count" label="转赠数量" width="100"></el-table-column>
+                                <el-table-column label="总价值" width="120">
+                                    <template #default="scope">
+                                        <el-tag type="warning">¥{{ scope.row.total_value }}</el-tag>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column label="状态" width="150">
+                                    <template #default="scope">
+                                        <div style="display: flex; flex-direction: column; gap: 5px;">
+                                            <el-tag v-if="scope.row.is_first_transfer" type="danger" effect="dark" size="small">
+                                                🎉 首次转赠
+                                            </el-tag>
+                                            <el-tag v-if="scope.row.is_recent" type="success" effect="dark" size="small">
+                                                ⚡ 最新动态
+                                            </el-tag>
+                                        </div>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column prop="addtime_format" label="转赠时间" width="180"></el-table-column>
+                                <el-table-column label="操作" width="100">
+                                    <template #default="scope">
+                                        <el-button link type="primary" @click="showRecordDetail(scope.row.id)">详情</el-button>
+                                    </template>
+                                </el-table-column>
+                            </el-table>
+
+                            <el-pagination
+                                style="margin-top: 20px; text-align: right;"
+                                v-model:current-page="recordsPage"
+                                v-model:page-size="recordsLimit"
+                                :total="recordsTotal"
+                                layout="total, prev, pager, next"
+                                @current-change="loadRecords">
+                            </el-pagination>
+                        </el-card>
+
+                        <!-- 详情弹窗 -->
+                        <el-dialog v-model="detailVisible" title="转赠详情" width="700px">
+                            <div v-if="currentDetail">
+                                <el-descriptions :column="2" border>
+                                    <el-descriptions-item label="转赠ID">{{ currentDetail.id }}</el-descriptions-item>
+                                    <el-descriptions-item label="转赠时间">{{ currentDetail.addtime_format }}</el-descriptions-item>
+                                    <el-descriptions-item label="赠送人">{{ currentDetail.user_id }}:{{ currentDetail.sender_name }}</el-descriptions-item>
+                                    <el-descriptions-item label="接收人">{{ currentDetail.give_user_id }}:{{ currentDetail.receiver_name }}</el-descriptions-item>
+                                    <el-descriptions-item label="转赠数量">{{ currentDetail.count }}件</el-descriptions-item>
+                                </el-descriptions>
+
+                                <h4 style="margin-top: 20px; margin-bottom: 10px;">转赠物品明细</h4>
+                                <el-table :data="currentDetail.items" border style="width: 100%;">
+                                    <el-table-column prop="goodslist_title" label="物品名称" min-width="200"></el-table-column>
+                                    <el-table-column prop="prize_num" label="数量" width="80" align="center"></el-table-column>
+                                    <el-table-column label="单价" width="120" align="right">
+                                        <template #default="scope">¥{{ scope.row.goodslist_money }}</template>
+                                    </el-table-column>
+                                    <el-table-column label="小计" width="120" align="right">
+                                        <template #default="scope">¥{{ (scope.row.goodslist_money * scope.row.prize_num).toFixed(2) }}</template>
+                                    </el-table-column>
+                                </el-table>
+                            </div>
+                        </el-dialog>
+                    </div>
+
+                    <!-- 用户分析页面 -->
+                    <div v-if="currentMenu === 'user'" class="user-analysis">
+                        <el-card shadow="never" style="margin-bottom: 20px;">
+                            <el-form :inline="true">
+                                <el-form-item label="用户ID">
+                                    <el-input v-model="userAnalysisId" placeholder="输入用户ID" style="width: 200px;"></el-input>
+                                </el-form-item>
+                                <el-form-item>
+                                    <el-button type="primary" @click="loadUserAnalysis">查询</el-button>
+                                </el-form-item>
+                            </el-form>
+                        </el-card>
+
+                        <div v-if="userStats.user_info" v-loading="userLoading">
+                            <el-card shadow="never" style="margin-bottom: 20px;">
+                                <el-descriptions :column="3" border>
+                                    <el-descriptions-item label="用户" :span="2">{{ userStats.user_info.id }}:{{ userStats.user_info.nickname }}</el-descriptions-item>
+                                    <el-descriptions-item label=""></el-descriptions-item>
+                                    <el-descriptions-item label="发出次数">{{ userStats.send.count }}次</el-descriptions-item>
+                                    <el-descriptions-item label="发出物品">{{ userStats.send.items }}件</el-descriptions-item>
+                                    <el-descriptions-item label="发出价值">¥{{ userStats.send.value }}</el-descriptions-item>
+                                    <el-descriptions-item label="收到次数">{{ userStats.receive.count }}次</el-descriptions-item>
+                                    <el-descriptions-item label="收到物品">{{ userStats.receive.items }}件</el-descriptions-item>
+                                    <el-descriptions-item label="收到价值">¥{{ userStats.receive.value }}</el-descriptions-item>
+                                </el-descriptions>
+                            </el-card>
+
+                            <!-- 用户转赠关系网络图 -->
+                            <el-card shadow="hover" style="margin-bottom: 20px;">
+                                <h4>转赠关系网络</h4>
+                                <p style="color: #909399; font-size: 12px; margin-bottom: 10px;">
+                                    以该用户为中心的转赠关系网络，蓝色表示发出，绿色表示收到
+                                </p>
+                                <div id="userNetworkChart" style="height: 500px;"></div>
+                            </el-card>
+
+                            <el-row :gutter="20">
+                                <el-col :span="12">
+                                    <el-card shadow="hover">
+                                        <div id="userTrendChart" style="height: 350px;"></div>
+                                    </el-card>
+                                </el-col>
+                                <el-col :span="12">
+                                    <el-card shadow="hover">
+                                        <div id="topReceiversChart" style="height: 350px;"></div>
+                                    </el-card>
+                                </el-col>
+                            </el-row>
+
+                            <!-- 转出明细表格 -->
+                            <el-card shadow="hover" style="margin-top: 20px;">
+                                <template #header>
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <span style="font-weight: bold;">📤 转出明细</span>
+                                        <el-tag type="info" size="small">该用户转赠给他人</el-tag>
+                                    </div>
+                                </template>
+                                <el-table :data="userStats.send_detail_list || []" stripe style="width: 100%;" max-height="400">
+                                    <el-table-column type="index" label="序号" width="60"></el-table-column>
+                                    <el-table-column label="接收人" min-width="200">
+                                        <template #default="scope">
+                                            <span style="color: #67C23A; font-weight: 500;">
+                                                {{ scope.row.target_user_id }}:{{ scope.row.target_name }}
+                                            </span>
+                                        </template>
+                                    </el-table-column>
+                                    <el-table-column prop="count" label="转赠次数" width="120">
+                                        <template #default="scope">
+                                            <el-tag type="danger" size="small">{{ scope.row.count }}次</el-tag>
+                                        </template>
+                                    </el-table-column>
+                                    <el-table-column prop="items" label="物品数" width="100">
+                                        <template #default="scope">{{ scope.row.items }}件</template>
+                                    </el-table-column>
+                                    <el-table-column label="转赠金额" width="150">
+                                        <template #default="scope">
+                                            <el-tag type="warning" size="small">¥{{ scope.row.value }}</el-tag>
+                                        </template>
+                                    </el-table-column>
+                                </el-table>
+                            </el-card>
+
+                            <!-- 转入明细表格 -->
+                            <el-card shadow="hover" style="margin-top: 20px;">
+                                <template #header>
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <span style="font-weight: bold;">📥 转入明细</span>
+                                        <el-tag type="success" size="small">该用户接收他人转赠</el-tag>
+                                    </div>
+                                </template>
+                                <el-table :data="userStats.receive_detail_list || []" stripe style="width: 100%;" max-height="400">
+                                    <el-table-column type="index" label="序号" width="60"></el-table-column>
+                                    <el-table-column label="赠送人" min-width="200">
+                                        <template #default="scope">
+                                            <span style="color: #409EFF; font-weight: 500;">
+                                                {{ scope.row.source_user_id }}:{{ scope.row.source_name }}
+                                            </span>
+                                        </template>
+                                    </el-table-column>
+                                    <el-table-column prop="count" label="转赠次数" width="120">
+                                        <template #default="scope">
+                                            <el-tag type="danger" size="small">{{ scope.row.count }}次</el-tag>
+                                        </template>
+                                    </el-table-column>
+                                    <el-table-column prop="items" label="物品数" width="100">
+                                        <template #default="scope">{{ scope.row.items }}件</template>
+                                    </el-table-column>
+                                    <el-table-column label="转赠金额" width="150">
+                                        <template #default="scope">
+                                            <el-tag type="warning" size="small">¥{{ scope.row.value }}</el-tag>
+                                        </template>
+                                    </el-table-column>
+                                </el-table>
+                            </el-card>
+                        </div>
+
+                        <el-empty v-else description="请输入用户ID查询" :image-size="100"></el-empty>
+                    </div>
+
+                    <!-- 转赠排行页面 -->
+                    <div v-if="currentMenu === 'network'" class="network">
+                        <el-card shadow="never" style="margin-bottom: 20px;">
+                            <el-form :inline="true">
+                                <el-form-item label="最小转赠次数">
+                                    <el-input-number v-model="networkMinCount" :min="1" :max="100"></el-input-number>
+                                </el-form-item>
+                                <el-form-item>
+                                    <el-button type="primary" @click="loadNetwork">查询</el-button>
+                                </el-form-item>
+                            </el-form>
+                        </el-card>
+
+                        <!-- 详细数据表格 -->
+                        <el-card shadow="never" v-loading="networkLoading">
+                            <h4>高频转赠排行 TOP50</h4>
+                            <p style="color: #909399; font-size: 12px; margin-bottom: 10px;">
+                                统计单向转赠关系，按转赠次数从高到低排序
+                            </p>
+                            <el-table :data="networkPairs" stripe style="width: 100%; margin-top: 10px;">
+                                <el-table-column type="index" label="排名" width="80"></el-table-column>
+                                <el-table-column label="赠送人" width="220">
+                                    <template #default="scope">
+                                        <span style="color: #409EFF; font-weight: 500;">
+                                            {{ scope.row.sender_id }}:{{ scope.row.sender_name }}
+                                        </span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column label="" width="60" align="center">
+                                    <template>
+                                        <span style="color: #909399; font-size: 18px;">→</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column label="接收人" width="220">
+                                    <template #default="scope">
+                                        <span style="color: #67C23A; font-weight: 500;">
+                                            {{ scope.row.receiver_id }}:{{ scope.row.receiver_name }}
+                                        </span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column prop="transfer_count" label="转赠次数" width="120">
+                                    <template #default="scope">
+                                        <el-tag type="danger">{{ scope.row.transfer_count }}次</el-tag>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column prop="total_items" label="物品数" width="100"></el-table-column>
+                                <el-table-column label="转赠金额" width="150">
+                                    <template #default="scope">
+                                        <el-tag type="warning">¥{{ scope.row.total_value }}</el-tag>
+                                    </template>
+                                </el-table-column>
+                            </el-table>
+                        </el-card>
+                    </div>
+                </el-main>
+            </el-container>
+        </el-container>
+    </div>
+
+    <!-- 引入JS -->
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
