@@ -190,6 +190,52 @@ body {
     .el-message {
         min-width: 280px;
     }
+
+    /* 显示移动端底部导航栏 */
+    .mobile-bottom-nav {
+        display: flex !important;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background-color: #fff;
+        border-top: 1px solid #e4e7ed;
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        height: 60px;
+    }
+
+    .mobile-bottom-nav .nav-item {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: #909399;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        padding: 5px;
+    }
+
+    .mobile-bottom-nav .nav-item.active {
+        color: #409EFF;
+        background-color: #f0f9ff;
+    }
+
+    .mobile-bottom-nav .nav-icon {
+        font-size: 20px;
+        margin-bottom: 2px;
+    }
+
+    .mobile-bottom-nav .nav-label {
+        font-size: 11px;
+        white-space: nowrap;
+    }
+
+    /* 主内容区底部留出空间给导航栏 */
+    .el-main {
+        padding-bottom: 70px !important;
+    }
 }
 
 /* 手机竖屏 (< 576px) */
@@ -269,6 +315,20 @@ body {
     /* 空状态padding */
     .el-empty {
         padding: 30px 0;
+    }
+
+    /* 确保移动端底部导航栏显示 */
+    .mobile-bottom-nav {
+        display: flex !important;
+    }
+
+    /* 底部导航标签更小 */
+    .mobile-bottom-nav .nav-label {
+        font-size: 10px;
+    }
+
+    .mobile-bottom-nav .nav-icon {
+        font-size: 18px;
     }
 }
 
@@ -383,6 +443,11 @@ body {
 .el-message {
     min-width: 380px;
     border-radius: 4px;
+}
+
+/* 移动端底部导航栏 */
+.mobile-bottom-nav {
+    display: none; /* 默认隐藏 */
 }
 
 /* 滚动条样式 */

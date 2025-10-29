@@ -7,6 +7,7 @@
 
     <!-- CDN引入 -->
     <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="css/style.css">
 
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
@@ -30,16 +31,20 @@
                     active-text-color="#409EFF"
                     @select="handleMenuSelect">
                     <el-menu-item index="dashboard">
-                        <span>📊 数据概览</span>
+                        <i class="bi bi-graph-up"></i>
+                        <span style="margin-left: 10px;">数据概览</span>
                     </el-menu-item>
                     <el-menu-item index="records">
-                        <span>📋 转赠记录</span>
+                        <i class="bi bi-list-ul"></i>
+                        <span style="margin-left: 10px;">转赠记录</span>
                     </el-menu-item>
                     <el-menu-item index="user">
-                        <span>👤 用户分析</span>
+                        <i class="bi bi-person"></i>
+                        <span style="margin-left: 10px;">用户分析</span>
                     </el-menu-item>
                     <el-menu-item index="network">
-                        <span>🏆 转赠排行</span>
+                        <i class="bi bi-trophy"></i>
+                        <span style="margin-left: 10px;">转赠排行</span>
                     </el-menu-item>
                 </el-menu>
             </el-aside>
@@ -92,7 +97,7 @@
                         <el-card shadow="hover" style="margin-bottom: 20px;">
                             <template #header>
                                 <div style="display: flex; justify-content: space-between; align-items: center;">
-                                    <span style="font-weight: bold;">⚡ 最新转赠动态</span>
+                                    <span style="font-weight: bold;">最新转赠动态</span>
                                     <el-tag type="info" size="small">最近24小时</el-tag>
                                 </div>
                             </template>
@@ -113,7 +118,7 @@
                                             </div>
                                             <div>
                                                 <el-tag v-if="item.is_first_transfer" type="danger" size="small" effect="dark">
-                                                    🎉 首次转赠
+                                                    首次转赠
                                                 </el-tag>
                                                 <el-tag type="warning" size="small" style="margin-left: 5px;">
                                                     ¥{{ item.total_value }}
@@ -208,10 +213,10 @@
                                     <template #default="scope">
                                         <div style="display: flex; flex-direction: column; gap: 5px;">
                                             <el-tag v-if="scope.row.is_first_transfer" type="danger" effect="dark" size="small">
-                                                🎉 首次转赠
+                                                首次转赠
                                             </el-tag>
                                             <el-tag v-if="scope.row.is_recent" type="success" effect="dark" size="small">
-                                                ⚡ 最新动态
+                                                最新动态
                                             </el-tag>
                                         </div>
                                     </template>
@@ -313,7 +318,7 @@
                             <el-card shadow="hover" style="margin-top: 20px;">
                                 <template #header>
                                     <div style="display: flex; justify-content: space-between; align-items: center;">
-                                        <span style="font-weight: bold;">📤 转出明细</span>
+                                        <span style="font-weight: bold;">转出明细</span>
                                         <el-tag type="info" size="small">该用户转赠给他人</el-tag>
                                     </div>
                                 </template>
@@ -346,7 +351,7 @@
                             <el-card shadow="hover" style="margin-top: 20px;">
                                 <template #header>
                                     <div style="display: flex; justify-content: space-between; align-items: center;">
-                                        <span style="font-weight: bold;">📥 转入明细</span>
+                                        <span style="font-weight: bold;">转入明细</span>
                                         <el-tag type="success" size="small">该用户接收他人转赠</el-tag>
                                     </div>
                                 </template>
@@ -436,6 +441,38 @@
                 </el-main>
             </el-container>
         </el-container>
+
+        <!-- 移动端底部导航栏 -->
+        <div class="mobile-bottom-nav">
+            <div
+                class="nav-item"
+                :class="{ active: currentMenu === 'dashboard' }"
+                @click="handleMenuSelect('dashboard')">
+                <i class="bi bi-graph-up nav-icon"></i>
+                <span class="nav-label">数据概览</span>
+            </div>
+            <div
+                class="nav-item"
+                :class="{ active: currentMenu === 'records' }"
+                @click="handleMenuSelect('records')">
+                <i class="bi bi-list-ul nav-icon"></i>
+                <span class="nav-label">转赠记录</span>
+            </div>
+            <div
+                class="nav-item"
+                :class="{ active: currentMenu === 'user' }"
+                @click="handleMenuSelect('user')">
+                <i class="bi bi-person nav-icon"></i>
+                <span class="nav-label">用户分析</span>
+            </div>
+            <div
+                class="nav-item"
+                :class="{ active: currentMenu === 'network' }"
+                @click="handleMenuSelect('network')">
+                <i class="bi bi-trophy nav-icon"></i>
+                <span class="nav-label">转赠排行</span>
+            </div>
+        </div>
     </div>
 
     <!-- 引入JS -->
