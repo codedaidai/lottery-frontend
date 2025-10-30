@@ -49,6 +49,30 @@
   - 支持重置名单
   - 移动端响应式设计
 
+### 4. 奶量统计 (recharge-stats)
+- **路径**: `tools/recharge-stats/`
+- **功能**: 后台充值欧气值数据可视化分析
+- **技术栈**:
+  - 后端: PHP 8.1 + MySQL
+  - 容器化: Docker + Docker Compose
+  - 图表: Chart.js 4.4.0
+- **数据库**:
+  - 服务器: 124.221.9.108
+  - 数据库: zspupu_shequtuan
+  - 主要表: profit_money (type=1), user
+- **特点**:
+  - 时间筛选（今天/昨天/本周/本月/自定义）
+  - 统计概览（总操作次数、充值总额、扣除总额、净增量）
+  - 趋势图表（按天展示充值和扣除趋势）
+  - 详细记录（最近100条充值记录）
+  - JSON API接口 (api.php)
+  - Docker容器化部署
+  - 响应式设计
+- **部署**:
+  - Docker端口: 8002
+  - 本地访问: http://localhost:8002
+  - 可通过Cloudflare Tunnel公网访问
+
 ## 🚀 推送到 GitHub 的方法
 
 ### 方法1: 标准推送（推荐）
