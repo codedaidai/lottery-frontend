@@ -2,209 +2,599 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>无限赏抽奖系统 - 控制台</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>抽奖转盘</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 900px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                padding: 40px;
+            }
+        }
+
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        @media (min-width: 768px) {
+            h1 {
+                font-size: 2.5em;
+                margin-bottom: 30px;
+            }
+        }
+
+        .input-section {
+            margin-bottom: 15px;
+        }
+
+        @media (min-width: 768px) {
+            .input-section {
+                margin-bottom: 30px;
+            }
+        }
+
+        .input-section label {
+            display: block;
+            font-size: 1em;
+            color: #333;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        @media (min-width: 768px) {
+            .input-section label {
+                font-size: 1.1em;
+                margin-bottom: 10px;
+            }
+        }
+
+        .input-section textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            resize: vertical;
+            transition: border-color 0.3s;
+            -webkit-appearance: none;
+            box-sizing: border-box;
+        }
+
+        @media (min-width: 768px) {
+            .input-section textarea {
+                padding: 15px;
+            }
+        }
+
+        .input-section textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        @media (min-width: 768px) {
+            .button-group {
+                gap: 15px;
+                margin-bottom: 30px;
+            }
+        }
+
+        button {
+            padding: 12px 20px;
+            font-size: 0.95em;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        @media (min-width: 768px) {
+            button {
+                padding: 15px 40px;
+                font-size: 1.1em;
+            }
+        }
+
+        .btn-confirm {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-confirm:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-spin {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .btn-spin:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(245, 87, 108, 0.4);
+        }
+
+        .btn-spin:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .wheel-container {
+            position: relative;
+            width: 100%;
+            max-width: 350px;
+            height: auto;
+            aspect-ratio: 1;
+            margin: 0 auto 15px;
+        }
+
+        @media (min-width: 768px) {
+            .wheel-container {
+                max-width: 500px;
+                margin: 0 auto 30px;
+            }
+        }
+
+        .wheel-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        #wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: transform 5s cubic-bezier(0.17, 0.67, 0.12, 0.99);
+            display: block;
+        }
+
+        .pointer {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 30px solid #ff0000;
+            filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.3));
+            z-index: 10;
+        }
+
+        @media (min-width: 768px) {
+            .pointer {
+                top: -20px;
+                border-left: 20px solid transparent;
+                border-right: 20px solid transparent;
+                border-top: 40px solid #ff0000;
+            }
+        }
+
+        .center-circle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            border: 4px solid white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            z-index: 5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1em;
+        }
+
+        @media (min-width: 768px) {
+            .center-circle {
+                width: 80px;
+                height: 80px;
+                border: 5px solid white;
+                font-size: 1.2em;
+            }
+        }
+
+        .result {
+            text-align: center;
+            font-size: 1.3em;
+            color: #f5576c;
+            font-weight: bold;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.5s;
+            word-break: break-word;
+        }
+
+        @media (min-width: 768px) {
+            .result {
+                font-size: 2em;
+                min-height: 60px;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .hint {
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+
+        .option-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+
+        .checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: #f5f5f5;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .checkbox-wrapper:hover {
+            background: #e8e8e8;
+        }
+
+        .checkbox-wrapper input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .checkbox-wrapper label {
+            font-size: 0.9em;
+            color: #333;
+            cursor: pointer;
+            margin: 0;
+            font-weight: normal;
+            white-space: nowrap;
+        }
+
+        @media (min-width: 768px) {
+            .checkbox-wrapper label {
+                font-size: 1em;
+            }
+        }
+
+        .info-box {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .info-box strong {
+            color: #ff5722;
+        }
+    </style>
 </head>
 <body>
-    <div class="container-fluid">
-        <!-- 标题栏 -->
-        <header class="row bg-primary text-white py-3 mb-4">
-            <div class="col-12">
-                <h1 class="text-center mb-0">
-                    <i class="bi bi-gift-fill"></i> 无限赏抽奖系统控制台
-                </h1>
-            </div>
-        </header>
+    <div class="container">
+        <h1>🎉 抽奖转盘 🎉</h1>
 
-        <!-- 主要内容区 -->
-        <div class="row">
-            <!-- 左侧: 配置区 -->
-            <div class="col-lg-7">
-                <!-- 基础配置 -->
-                <div class="card mb-3">
-                    <div class="card-header bg-secondary text-white">
-                        <h5 class="mb-0"><i class="bi bi-gear-fill"></i> 基础配置</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">单次抽奖价格 (元)</label>
-                                <input type="number" id="price" class="form-control" value="199" min="1">
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">目标利润率 (%)</label>
-                                <input type="number" id="targetProfit" class="form-control" value="18" min="0" max="100" step="0.1">
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">模拟次数</label>
-                                <input type="number" id="simulationCount" class="form-control" value="100000" min="1000" max="10000000" step="1000">
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        <div class="input-section">
+            <label>输入参与者名单（每行一个，格式：序号. 名字 其他信息）：</label>
+            <textarea id="nameInput" rows="5" placeholder="1. 张三 奖品A&#10;2. 李四 奖品B&#10;3. 张三 奖品C&#10;4. 王五 奖品D"></textarea>
+            <div class="hint">至少输入2条记录，系统会自动识别同名并一起移除</div>
+        </div>
 
-                <!-- 奖品配置表格 -->
-                <div class="card mb-3">
-                    <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0"><i class="bi bi-table"></i> 奖品配置</h5>
-                        <div>
-                            <button class="btn btn-sm btn-success" id="addPrizeBtn">
-                                <i class="bi bi-plus-circle"></i> 添加奖品
-                            </button>
-                        </div>
-                    </div>
-                    <div class="card-body p-0">
-                        <div class="table-responsive">
-                            <table class="table table-hover mb-0">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th style="width: 40%">奖品名称</th>
-                                        <th style="width: 20%">概率 (%)</th>
-                                        <th style="width: 20%">价值 (元)</th>
-                                        <th style="width: 15%">期望成本</th>
-                                        <th style="width: 5%">操作</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="prizesTable">
-                                    <!-- 由JS动态生成 -->
-                                </tbody>
-                                <tfoot class="table-light">
-                                    <tr class="fw-bold">
-                                        <td>总计</td>
-                                        <td id="totalProb">0.00%</td>
-                                        <td>-</td>
-                                        <td id="totalExpected">0.00</td>
-                                        <td></td>
-                                    </tr>
-                                </tfoot>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 操作按钮区 -->
-                <div class="card mb-3">
-                    <div class="card-header bg-secondary text-white">
-                        <h5 class="mb-0"><i class="bi bi-calculator-fill"></i> 操作</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row g-2">
-                            <div class="col-md-4">
-                                <button class="btn btn-primary w-100" id="calculateBtn">
-                                    <i class="bi bi-calculator"></i> 计算统计
-                                </button>
-                            </div>
-                            <div class="col-md-4">
-                                <button class="btn btn-warning w-100" id="adjustValuesBtn">
-                                    <i class="bi bi-coin"></i> 调整价值
-                                </button>
-                            </div>
-                            <div class="col-md-4">
-                                <button class="btn btn-info w-100" id="adjustProbsBtn">
-                                    <i class="bi bi-percent"></i> 调整概率
-                                </button>
-                            </div>
-                            <div class="col-md-6">
-                                <button class="btn btn-success w-100" id="simulateBtn">
-                                    <i class="bi bi-arrow-repeat"></i> 运行模拟
-                                </button>
-                            </div>
-                            <div class="col-md-6">
-                                <button class="btn btn-danger w-100" id="saveConfigBtn">
-                                    <i class="bi bi-save-fill"></i> 保存配置
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 右侧: 结果展示区 -->
-            <div class="col-lg-5">
-                <!-- 统计信息 -->
-                <div class="card mb-3">
-                    <div class="card-header bg-success text-white">
-                        <h5 class="mb-0"><i class="bi bi-graph-up"></i> 统计信息</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row text-center">
-                            <div class="col-6 mb-3">
-                                <div class="stat-card">
-                                    <div class="stat-label">期望赔付</div>
-                                    <div class="stat-value text-primary" id="statExpected">-</div>
-                                </div>
-                            </div>
-                            <div class="col-6 mb-3">
-                                <div class="stat-card">
-                                    <div class="stat-label">利润率</div>
-                                    <div class="stat-value text-success" id="statProfit">-</div>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="stat-card">
-                                    <div class="stat-label">概率总和</div>
-                                    <div class="stat-value" id="statProbSum">-</div>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="stat-card">
-                                    <div class="stat-label">奖品数量</div>
-                                    <div class="stat-value text-info" id="statPrizeCount">-</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 模拟结果 -->
-                <div class="card mb-3">
-                    <div class="card-header bg-info text-white">
-                        <h5 class="mb-0"><i class="bi bi-bar-chart-fill"></i> 模拟结果</h5>
-                    </div>
-                    <div class="card-body">
-                        <div id="simulationResults" class="text-muted text-center py-3">
-                            <i class="bi bi-arrow-repeat fs-1"></i>
-                            <p class="mb-0">点击"运行模拟"查看结果</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 日志区 -->
-                <div class="card">
-                    <div class="card-header bg-dark text-white">
-                        <h5 class="mb-0"><i class="bi bi-terminal-fill"></i> 操作日志</h5>
-                    </div>
-                    <div class="card-body p-0">
-                        <div id="logArea" class="log-area"></div>
-                    </div>
-                </div>
+        <div class="option-section">
+            <div class="checkbox-wrapper">
+                <input type="checkbox" id="removeWinner" checked>
+                <label for="removeWinner">抽中后自动去除该名字的所有条目</label>
             </div>
         </div>
-    </div>
 
-    <!-- 提示模态框 -->
-    <div class="modal fade" id="messageModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="messageModalTitle">提示</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body" id="messageModalBody">
-                    <!-- 动态内容 -->
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
-                </div>
+        <div class="info-box" id="infoBox" style="display: none;">
+            剩余条目数：<strong id="remainingCount">0</strong> 条
+        </div>
+
+        <div class="button-group">
+            <button class="btn-confirm" onclick="confirmNames()">✓ 确认名单</button>
+            <button class="btn-spin" id="spinBtn" onclick="startSpin()" disabled>🎲 开始抽奖</button>
+            <button class="btn-confirm" id="resetBtn" onclick="resetNames()" style="display: none;">🔄 重置名单</button>
+        </div>
+
+        <div class="wheel-container">
+            <div class="wheel-wrapper">
+                <div class="pointer"></div>
+                <canvas id="wheel" width="500" height="500"></canvas>
+                <div class="center-circle">开始</div>
             </div>
         </div>
+
+        <div class="result" id="result"></div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <script src="script.js"></script>
+    <script>
+        let names = [];
+        let originalNames = []; // 保存原始名单
+        let isSpinning = false;
+        let currentRotation = 0;
+
+        const colors = [
+            '#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8',
+            '#F7DC6F', '#BB8FCE', '#85C1E2', '#F8B88B', '#AAB7B8',
+            '#FF8C94', '#A8E6CF', '#FFD93D', '#6BCF7F', '#C5A3FF'
+        ];
+
+        // 提取名字（去掉序号后，第一个空格之前的部分）
+        function extractName(fullText) {
+            let text = fullText.trim();
+            
+            // 去掉开头的序号（如 "2. " 或 "123. "）
+            const match = text.match(/^\d+\.\s*/);
+            if (match) {
+                text = text.substring(match[0].length);
+            }
+            
+            // 提取第一个空格之前的部分作为名字
+            const spaceIndex = text.indexOf(' ');
+            if (spaceIndex === -1) {
+                return text; // 没有空格，整个就是名字
+            }
+            return text.substring(0, spaceIndex);
+        }
+
+        function confirmNames() {
+            const input = document.getElementById('nameInput').value.trim();
+            if (!input) {
+                alert('请输入至少一条记录！');
+                return;
+            }
+
+            names = input.split('\n').filter(name => name.trim()).map(name => name.trim());
+            originalNames = [...names]; // 保存原始名单
+
+            if (names.length < 2) {
+                alert('请输入至少两条记录！');
+                return;
+            }
+
+            document.getElementById('result').textContent = '';
+            currentRotation = 0; // 重置转盘角度
+            drawWheel();
+            document.getElementById('spinBtn').disabled = false;
+            document.getElementById('resetBtn').style.display = 'inline-block';
+            updateRemainingCount();
+            
+            // 统计有多少个不同的名字
+            const uniqueNames = new Set(names.map(entry => extractName(entry)));
+            alert(`已添加 ${names.length} 条记录，共 ${uniqueNames.size} 个不同的名字！\n点击"开始抽奖"进行抽奖。`);
+        }
+
+        function resetNames() {
+            if (originalNames.length === 0) {
+                alert('请先确认名单！');
+                return;
+            }
+
+            if (confirm('确定要重置名单吗？这将恢复所有已去除的名字。')) {
+                names = [...originalNames];
+                currentRotation = 0;
+                document.getElementById('result').textContent = '';
+                drawWheel();
+                document.getElementById('spinBtn').disabled = false;
+                updateRemainingCount();
+                alert('名单已重置！');
+            }
+        }
+
+        function updateRemainingCount() {
+            const infoBox = document.getElementById('infoBox');
+            const remainingCount = document.getElementById('remainingCount');
+
+            if (originalNames.length > 0) {
+                infoBox.style.display = 'block';
+                remainingCount.textContent = names.length;
+            } else {
+                infoBox.style.display = 'none';
+            }
+        }
+
+        function drawWheel() {
+            const canvas = document.getElementById('wheel');
+            const container = document.querySelector('.wheel-container');
+            const size = container.clientWidth;
+
+            // 动态设置canvas尺寸
+            canvas.width = size;
+            canvas.height = size;
+
+            const ctx = canvas.getContext('2d');
+            const centerX = size / 2;
+            const centerY = size / 2;
+            const radius = size / 2;
+
+            ctx.clearRect(0, 0, size, size);
+
+            if (names.length === 0) return;
+
+            const anglePerSegment = (2 * Math.PI) / names.length;
+
+            names.forEach((name, index) => {
+                const startAngle = index * anglePerSegment;
+                const endAngle = startAngle + anglePerSegment;
+
+                // 绘制扇形
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+                ctx.closePath();
+                ctx.fillStyle = colors[index % colors.length];
+                ctx.fill();
+                ctx.strokeStyle = 'white';
+                ctx.lineWidth = Math.max(2, size / 166);
+                ctx.stroke();
+
+                // 绘制文字
+                ctx.save();
+                ctx.translate(centerX, centerY);
+                ctx.rotate(startAngle + anglePerSegment / 2);
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillStyle = 'white';
+                const fontSize = Math.max(14, size / 25);
+                ctx.font = `bold ${fontSize}px -apple-system, BlinkMacSystemFont, Arial, sans-serif`;
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+                ctx.shadowBlur = 4;
+                ctx.fillText(name, radius * 0.65, 0);
+                ctx.restore();
+            });
+        }
+
+        function startSpin() {
+            if (isSpinning || names.length === 0) return;
+
+            isSpinning = true;
+            document.getElementById('spinBtn').disabled = true;
+            document.getElementById('result').textContent = '抽奖中...';
+
+            const canvas = document.getElementById('wheel');
+            const spinBtn = document.getElementById('spinBtn');
+
+            // 随机选择中奖者
+            const winnerIndex = Math.floor(Math.random() * names.length);
+            const anglePerSegment = 360 / names.length;
+
+            // 计算目标角度：转5圈(1800度) + 随机角度，确保指针指向中奖者
+            const extraSpins = 1800; // 5圈
+            const targetAngle = extraSpins + (360 - (winnerIndex * anglePerSegment + anglePerSegment / 2));
+
+            currentRotation += targetAngle;
+
+            canvas.style.transform = `rotate(${currentRotation}deg)`;
+
+            // 5秒后显示结果
+            setTimeout(() => {
+                const winner = names[winnerIndex];
+                document.getElementById('result').innerHTML = `🎉 恭喜：<span style="color: #667eea;">${winner}</span> 🎉`;
+
+                // 检查是否启用了去重功能
+                const removeWinner = document.getElementById('removeWinner').checked;
+
+                if (removeWinner) {
+                    // 提取中奖者的名字
+                    const winnerName = extractName(winner);
+                    
+                    // 统计同名人数（所有该名字的条目）
+                    const removedCount = names.filter(entry => extractName(entry) === winnerName).length;
+                    
+                    // 从名单中移除所有同名的人
+                    names = names.filter(entry => extractName(entry) !== winnerName);
+
+                    if (names.length === 0) {
+                        const message = removedCount > 1 
+                            ? `恭喜 ${winner} 中奖！\n\n已移除"${winnerName}"的 ${removedCount} 个条目，所有人都已抽完，请重置名单后继续。`
+                            : `恭喜 ${winner} 中奖！\n\n所有人都已抽完，请重置名单后继续。`;
+                        alert(message);
+                        document.getElementById('spinBtn').disabled = true;
+                    } else {
+                        const message = removedCount > 1 
+                            ? `恭喜 ${winner} 中奖！\n\n已移除"${winnerName}"的 ${removedCount} 个条目，剩余 ${names.length} 个条目。`
+                            : `恭喜 ${winner} 中奖！\n\n该名字已从名单中移除，剩余 ${names.length} 个条目。`;
+                        alert(message);
+                        // 重置转盘角度并重新绘制
+                        currentRotation = 0;
+                        const canvas = document.getElementById('wheel');
+                        canvas.style.transition = 'none';
+                        canvas.style.transform = 'rotate(0deg)';
+                        setTimeout(() => {
+                            canvas.style.transition = 'transform 5s cubic-bezier(0.17, 0.67, 0.12, 0.99)';
+                            drawWheel();
+                        }, 50);
+                    }
+
+                    updateRemainingCount();
+                } else {
+                    alert(`恭喜 ${winner} 中奖！`);
+                }
+
+                isSpinning = false;
+                if (names.length > 0) {
+                    document.getElementById('spinBtn').disabled = false;
+                }
+            }, 5000);
+        }
+
+        // 初始绘制空转盘
+        drawWheel();
+    </script>
 </body>
 </html>
