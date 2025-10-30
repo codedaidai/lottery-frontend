@@ -8,8 +8,8 @@
 $DB_HOST = "124.221.9.108";
 $DB_PORT = 3306;
 $DB_NAME = "zspupu_shequtuan";
-$DB_USER = "root";
-$DB_PASS = "s:ayY[!3{NL9";
+$DB_USER = "zspupu_shequtuan";  // 使用与转赠系统相同的用户
+$DB_PASS = "dtmjy7E6XKbWFf8t";  // 使用与转赠系统相同的密码
 
 date_default_timezone_set('Asia/Shanghai');
 
