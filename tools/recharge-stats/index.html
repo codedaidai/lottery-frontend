@@ -47,11 +47,14 @@
         </div>
     </div>
     <script>
-        // 检测本地服务是否运行
-        fetch('http://localhost:8002/index.php', { method: 'HEAD' })
+        // 通过Cloudflare Tunnel访问后端服务
+        const BACKEND_URL = 'https://parliament-blackberry-ethnic-tions.trycloudflare.com';
+
+        // 检测服务是否运行
+        fetch(BACKEND_URL + '/index.php', { method: 'HEAD' })
             .then(() => {
                 // 服务运行中，直接跳转
-                window.location.href = 'http://localhost:8002/index.php';
+                window.location.href = BACKEND_URL + '/index.php';
             })
             .catch(() => {
                 // 服务未运行，显示错误提示
