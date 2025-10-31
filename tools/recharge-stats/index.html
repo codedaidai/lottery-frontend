@@ -50,18 +50,10 @@
         // 通过Cloudflare Tunnel访问后端服务
         const BACKEND_URL = 'https://parliament-blackberry-ethnic-tions.trycloudflare.com';
 
-        // 检测服务是否运行
-        fetch(BACKEND_URL + '/index.php', { method: 'HEAD' })
-            .then(() => {
-                // 服务运行中，直接跳转
-                window.location.href = BACKEND_URL + '/index.php';
-            })
-            .catch(() => {
-                // 服务未运行，显示错误提示
-                document.querySelector('.loading').style.display = 'none';
-                document.querySelector('.message').style.display = 'none';
-                document.getElementById('error').style.display = 'block';
-            });
+        // 直接跳转（0.5秒延迟，显示加载动画）
+        setTimeout(() => {
+            window.location.href = BACKEND_URL + '/index.php';
+        }, 500);
     </script>
 </body>
 </html>
