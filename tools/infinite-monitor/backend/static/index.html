@@ -431,7 +431,10 @@
 
                 html += `
                     <div class="box-item">
-                        <img src="${getImageUrl(box.imgurl)}" class="box-image" alt="${box.title}">
+                        <img src="${getImageUrl(box.imgurl)}"
+                             class="box-image"
+                             alt="${box.title}"
+                             onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22><rect width=%22100%22 height=%22100%22 fill=%22%23f0f0f0%22/><text x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23999%22 font-size=%2212%22>📦</text></svg>'; this.onerror=null;">
                         <div class="box-info">
                             <h3>${box.title} ${statusBadge} ${warningBadge}</h3>
                             <div class="box-meta">
@@ -496,7 +499,9 @@
 
                 prizesHtml += `
                     <div class="prize-card">
-                        <img src="${getImageUrl(prize.imgurl)}" alt="${prize.title}">
+                        <img src="${getImageUrl(prize.imgurl)}"
+                             alt="${prize.title}"
+                             onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22><rect width=%22100%22 height=%22100%22 fill=%22%23f0f0f0%22/><text x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23999%22 font-size=%2220%22>🎁</text></svg>'; this.onerror=null;">
                         <h4>${prize.title}</h4>
                         <span class="shang-badge" style="background: ${shangColor}; color: white;">${prize.shang_title}</span>
                         <div style="font-size: 0.85em; color: #666; margin-top: 8px;">
