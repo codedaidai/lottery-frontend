@@ -118,7 +118,20 @@ git push origin main
 
 ### 常见问题处理
 
-#### 问题1: 推送超时 (Recv failure: Operation timed out)
+#### 问题1: Failed to connect to github.com (推送失败/超时)
+```bash
+# ⚠️ IMPORTANT: 必须配置代理才能推送！
+# compact后git代理配置会丢失，需要重新设置
+
+# 解决方案: 配置git使用系统代理 (127.0.0.1:7890)
+git config --global http.proxy http://127.0.0.1:7890
+git config --global https.proxy http://127.0.0.1:7890
+
+# 然后推送
+git push origin main
+```
+
+#### 问题2: 推送超时 (Recv failure: Operation timed out)
 ```bash
 # 解决方案1: 禁用HTTP/2
 git config --global http.version HTTP/1.1
@@ -132,7 +145,7 @@ git config --global http.lowSpeedLimit 0
 git config --global http.lowSpeedTime 999999
 ```
 
-#### 问题2: 推送失败 (HTTP2 framing layer error)
+#### 问题3: 推送失败 (HTTP2 framing layer error)
 ```bash
 # 临时禁用HTTP/2
 git config --global http.version HTTP/1.1
