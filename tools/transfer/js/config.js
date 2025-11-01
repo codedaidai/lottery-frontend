@@ -13,7 +13,7 @@ const CONFIG = {
         }
 
         // 生产环境 - 通过Cloudflare Tunnel访问
-        return 'https://rolled-article-beautifully-campbell.trycloudflare.com/admin/transfer';
+        return 'https://opinions-candles-breeds-concerning.trycloudflare.com/admin/transfer';
     })(),
 
     // 分页配置
