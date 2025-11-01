@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  infinite-monitor:
+    container_name: infinite-monitor
+    build: .
+    ports:
+      - "5003:5000"
+    volumes:
+      - ./config:/app/config
+      - ./backend:/app/backend
+      - ./frontend:/app/frontend
+    environment:
+      - TZ=Asia/Shanghai
+    restart: unless-stopped
+    networks:
+      - monitor-network
+
+networks:
+  monitor-network:
+    driver: bridge

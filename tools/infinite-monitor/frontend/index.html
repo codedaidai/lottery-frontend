@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>无限赏监控系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .refresh-time {
+            color: rgba(255,255,255,0.9);
+            font-size: 0.9em;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card h3 {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+        .stat-card .value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .alert-card {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+
+        .boxes-container {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .box-item {
+            border-bottom: 1px solid #eee;
+            padding: 20px 0;
+            display: grid;
+            grid-template-columns: 80px 1fr auto;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .box-item:last-child {
+            border-bottom: none;
+        }
+
+        .box-image {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .box-info h3 {
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .box-meta {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 8px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.3s;
+        }
+
+        .progress-fill.low {
+            background: #f44336;
+        }
+
+        .progress-fill.medium {
+            background: #ff9800;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 500;
+        }
+
+        .badge-online {
+            background: #4caf50;
+            color: white;
+        }
+
+        .badge-offline {
+            background: #9e9e9e;
+            color: white;
+        }
+
+        .badge-warning {
+            background: #ff9800;
+            color: white;
+        }
+
+        .badge-danger {
+            background: #f44336;
+            color: white;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+
+        .detail-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            background: white;
+            max-width: 1000px;
+            margin: 50px auto;
+            border-radius: 12px;
+            padding: 30px;
+            position: relative;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .prize-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .prize-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .prize-card img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 6px;
+            margin-bottom: 10px;
+        }
+
+        .prize-card h4 {
+            font-size: 0.9em;
+            margin-bottom: 8px;
+            color: #333;
+            min-height: 40px;
+        }
+
+        .prize-stock {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .auto-refresh {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .shang-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            margin-left: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 无限赏监控系统</h1>
+            <div class="refresh-time">最后更新: <span id="lastUpdate">--</span></div>
+            <div class="auto-refresh">
+                <label>
+                    <input type="checkbox" id="autoRefresh" checked> 自动刷新
+                </label>
+                <button class="btn btn-primary" onclick="loadAllData()">手动刷新</button>
+            </div>
+        </div>
+
+        <div id="errorMessage"></div>
+
+        <div id="alertContainer"></div>
+
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+                <h3>盒子总数</h3>
+                <div class="value" id="boxCount">--</div>
+            </div>
+            <div class="stat-card">
+                <h3>总销售数</h3>
+                <div class="value" id="totalSales">--</div>
+            </div>
+            <div class="stat-card">
+                <h3>总库存</h3>
+                <div class="value" id="totalStock">--</div>
+            </div>
+            <div class="stat-card">
+                <h3>需要刷新</h3>
+                <div class="value" id="refreshCount" style="color: #f44336;">--</div>
+            </div>
+        </div>
+
+        <div class="boxes-container">
+            <h2 style="margin-bottom: 20px;">📦 无限赏盒子列表</h2>
+            <div id="boxesList">
+                <div class="loading">加载中...</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="detailModal" class="detail-modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:5000/api';
+        let autoRefreshInterval = null;
+
+        // 加载全局统计
+        async function loadGlobalStats() {
+            try {
+                const response = await fetch(`${API_BASE}/infinite/stats`);
+                const result = await response.json();
+
+                if (result.success) {
+                    const stats = result.stats;
+                    document.getElementById('boxCount').textContent = stats.box_count;
+                    document.getElementById('totalSales').textContent = stats.total_sales.toLocaleString();
+                    document.getElementById('totalStock').textContent = stats.total_stock.toLocaleString();
+                    document.getElementById('refreshCount').textContent = stats.refresh_count;
+                }
+            } catch (error) {
+                console.error('加载统计数据失败:', error);
+            }
+        }
+
+        // 加载需要刷新的盒子警告
+        async function loadRefreshAlerts() {
+            try {
+                const response = await fetch(`${API_BASE}/infinite/boxes/need-refresh`);
+                const result = await response.json();
+
+                const alertContainer = document.getElementById('alertContainer');
+
+                if (result.success && result.count > 0) {
+                    const boxNames = result.data.map(b => b.title).join('、');
+                    alertContainer.innerHTML = `
+                        <div class="alert-card">
+                            ⚠️ <strong>警告:</strong> 以下盒子库存告急(≤50),即将刷新: ${boxNames}
+                        </div>
+                    `;
+                } else {
+                    alertContainer.innerHTML = '';
+                }
+            } catch (error) {
+                console.error('加载警告信息失败:', error);
+            }
+        }
+
+        // 加载盒子列表
+        async function loadBoxes() {
+            try {
+                const response = await fetch(`${API_BASE}/infinite/boxes`);
+                const result = await response.json();
+
+                if (result.success) {
+                    renderBoxes(result.data);
+                    document.getElementById('lastUpdate').textContent = result.timestamp;
+                    document.getElementById('errorMessage').innerHTML = '';
+                } else {
+                    throw new Error(result.error || '未知错误');
+                }
+            } catch (error) {
+                document.getElementById('errorMessage').innerHTML =
+                    `<div class="error">❌ 加载失败: ${error.message}</div>`;
+                console.error('加载盒子列表失败:', error);
+            }
+        }
+
+        // 渲染盒子列表
+        function renderBoxes(boxes) {
+            const container = document.getElementById('boxesList');
+
+            if (boxes.length === 0) {
+                container.innerHTML = '<div class="loading">暂无数据</div>';
+                return;
+            }
+
+            let html = '';
+            boxes.forEach(box => {
+                const statusBadge = box.status === 1
+                    ? '<span class="badge badge-online">上架中</span>'
+                    : '<span class="badge badge-offline">已下架</span>';
+
+                const warningBadge = box.need_refresh
+                    ? '<span class="badge badge-danger">即将刷新</span>'
+                    : '';
+
+                const stockClass = box.stock_percent < 5 ? 'low' : (box.stock_percent < 20 ? 'medium' : '');
+
+                html += `
+                    <div class="box-item">
+                        <img src="${box.imgurl || '/static/placeholder.png'}" class="box-image" alt="${box.title}">
+                        <div class="box-info">
+                            <h3>${box.title} ${statusBadge} ${warningBadge}</h3>
+                            <div class="box-meta">
+                                价格: ¥${box.price} | 已售: ${box.sale_num.toLocaleString()}次 | 奖品数: ${box.prize_count}个
+                            </div>
+                            <div class="box-meta">
+                                当前库存: <strong>${box.total_stock}</strong> / 10000 (${box.stock_percent}%)
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill ${stockClass}" style="width: ${box.stock_percent}%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <button class="btn btn-primary" onclick="showDetail(${box.id})">查看详情</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // 显示详情弹窗
+        async function showDetail(boxId) {
+            const modal = document.getElementById('detailModal');
+            const content = document.getElementById('modalContent');
+            content.innerHTML = '<div class="loading">加载中...</div>';
+            modal.style.display = 'block';
+
+            try {
+                const response = await fetch(`${API_BASE}/infinite/box/${boxId}`);
+                const result = await response.json();
+
+                if (result.success) {
+                    renderDetail(result);
+                } else {
+                    content.innerHTML = `<div class="error">${result.error}</div>`;
+                }
+            } catch (error) {
+                content.innerHTML = `<div class="error">加载失败: ${error.message}</div>`;
+            }
+        }
+
+        // 渲染详情内容
+        function renderDetail(data) {
+            const box = data.box;
+            const prizes = data.prizes;
+            const stats = data.stats;
+
+            const shangColors = {
+                5: '#ff0000',
+                39: '#ff6b00',
+                38: '#9c27b0',
+                37: '#2196f3',
+                36: '#4caf50'
+            };
+
+            let prizesHtml = '';
+            prizes.forEach(prize => {
+                const shangColor = shangColors[prize.shang_id] || '#999';
+                const stockWarning = prize.real_pro_stock < 10 ? ' style="color: red;"' : '';
+
+                prizesHtml += `
+                    <div class="prize-card">
+                        <img src="${prize.imgurl || '/static/placeholder.png'}" alt="${prize.title}">
+                        <h4>${prize.title}</h4>
+                        <span class="shang-badge" style="background: ${shangColor}; color: white;">${prize.shang_title}</span>
+                        <div style="font-size: 0.85em; color: #666; margin-top: 8px;">
+                            概率: ${prize.real_prob}%<br>
+                            价值: ¥${prize.price}<br>
+                            回收: ¥${prize.recycle_price}
+                        </div>
+                        <div class="prize-stock"${stockWarning}>库存: ${prize.real_pro_stock}</div>
+                        <div style="font-size: 0.8em; color: #999;">已售: ${prize.sale_num}</div>
+                    </div>
+                `;
+            });
+
+            const content = document.getElementById('modalContent');
+            content.innerHTML = `
+                <h2>${box.title}</h2>
+                <div class="box-meta" style="margin: 20px 0;">
+                    价格: ¥${box.price} | 已售: ${box.sale_num.toLocaleString()}次 | 添加时间: ${box.addtime_text}
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>总库存</h3>
+                        <div class="value">${stats.total_stock}</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>库存百分比</h3>
+                        <div class="value">${stats.stock_percent}%</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>已售奖品</h3>
+                        <div class="value">${stats.total_sales}</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>奖品数量</h3>
+                        <div class="value">${stats.prize_count}</div>
+                    </div>
+                </div>
+                <h3 style="margin-top: 30px; margin-bottom: 15px;">🎁 奖品列表</h3>
+                <div class="prize-grid">
+                    ${prizesHtml}
+                </div>
+            `;
+        }
+
+        // 关闭弹窗
+        function closeModal() {
+            document.getElementById('detailModal').style.display = 'none';
+        }
+
+        // 加载所有数据
+        async function loadAllData() {
+            await loadGlobalStats();
+            await loadRefreshAlerts();
+            await loadBoxes();
+        }
+
+        // 自动刷新控制
+        document.getElementById('autoRefresh').addEventListener('change', (e) => {
+            if (e.target.checked) {
+                startAutoRefresh();
+            } else {
+                stopAutoRefresh();
+            }
+        });
+
+        function startAutoRefresh() {
+            if (autoRefreshInterval) return;
+            autoRefreshInterval = setInterval(loadAllData, 10000); // 每10秒刷新
+        }
+
+        function stopAutoRefresh() {
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+                autoRefreshInterval = null;
+            }
+        }
+
+        // 点击弹窗外部关闭
+        window.onclick = function(event) {
+            const modal = document.getElementById('detailModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+        // 初始化
+        window.onload = function() {
+            loadAllData();
+            startAutoRefresh();
+        };
+    </script>
+</body>
+</html>
