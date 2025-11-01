@@ -334,8 +334,18 @@
     </div>
 
     <script>
-        const API_BASE = '/api';  // 使用相对路径，自动适配当前域名和端口
+        // 使用相对路径，自动适配当前域名和端口
+        const API_BASE = '/api';
+        // 图片服务器地址（图片存储在主服务器上）
+        const IMG_SERVER = 'http://124.221.9.108:8080';
         let autoRefreshInterval = null;
+
+        // 辅助函数：获取完整图片URL
+        function getImageUrl(path) {
+            if (!path) return '/static/placeholder.png';
+            if (path.startsWith('http')) return path;
+            return IMG_SERVER + path;
+        }
 
         // 加载全局统计
         async function loadGlobalStats() {
@@ -421,7 +431,7 @@
 
                 html += `
                     <div class="box-item">
-                        <img src="${box.imgurl || '/static/placeholder.png'}" class="box-image" alt="${box.title}">
+                        <img src="${getImageUrl(box.imgurl)}" class="box-image" alt="${box.title}">
                         <div class="box-info">
                             <h3>${box.title} ${statusBadge} ${warningBadge}</h3>
                             <div class="box-meta">
@@ -486,7 +496,7 @@
 
                 prizesHtml += `
                     <div class="prize-card">
-                        <img src="${prize.imgurl || '/static/placeholder.png'}" alt="${prize.title}">
+                        <img src="${getImageUrl(prize.imgurl)}" alt="${prize.title}">
                         <h4>${prize.title}</h4>
                         <span class="shang-badge" style="background: ${shangColor}; color: white;">${prize.shang_title}</span>
                         <div style="font-size: 0.85em; color: #666; margin-top: 8px;">
